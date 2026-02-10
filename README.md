@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Signal Nook
 
-## Getting Started
+**Daily AI signals, curated and structured.**
 
-First, run the development server:
+Signal Nook is a full-stack Next.js app for generating and browsing daily AI ecosystem editions. It includes:
+
+- A polished edition reader with stream sections, URL-driven filters, cards/compact views, signal details modal, pinning, and exports.
+- A searchable editions library with heat filters and trend sparkline.
+- Source management with enable toggles, add-source form, and per-source test fetch preview.
+- Ops console with health checks, ingestion runs, secure run-now action, and log downloads.
+- Prisma schema + migrations + seed data (including edition `2026-02-10` with 43 signals).
+- Manual ingestion pipeline with OpenAI Responses API classification + deterministic fallback heuristics.
+
+## Tech Stack
+
+- Next.js 16 (App Router) + strict TypeScript
+- Tailwind CSS + shadcn/ui
+- Prisma ORM + SQLite (`DATABASE_URL=file:./dev.db`)
+- OpenAI Node SDK (`openai`) via Responses API
+- Zod runtime validation
+- Vitest tests
+
+## Quick Start
+
+1. Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configure environment:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# PowerShell
+Copy-Item .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Start locally with one command (runs migrations + seed + dev):
 
-## Learn More
+```bash
+pnpm dev:ready
+```
 
-To learn more about Next.js, take a look at the following resources:
+Then open `http://localhost:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Create `.env` with:
 
-## Deploy on Vercel
+```env
+DATABASE_URL="file:./dev.db"
+OPENAI_API_KEY=""
+OPENAI_MODEL="gpt-4.1-mini"
+ADMIN_SECRET="change-me"
+INGESTION_MAX_ITEMS="60"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Notes:
+- If `OPENAI_API_KEY` is missing, ingestion automatically falls back to deterministic heuristics and marks confidence `UNVERIFIED`.
+- `ADMIN_SECRET` is required for `POST /api/ops/run-now`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Seeded Data
+
+`pnpm db:seed` inserts:
+
+- 5 editions (newest: `2026-02-10`)
+- `2026-02-10` distribution: **43 total**, **HOT 1**, **NOTABLE 16**, **QUIET 26**
+- 8 sources spanning RSS, GitHub releases, npm updates, Reddit RSS, and custom RSS
+- ingestion run history records
+
+## Core Routes
+
+- `/` Today
+- `/editions` Library
+- `/editions/[date]` Edition detail
+- `/sources` Sources
+- `/ops` Ops
+
+## API Routes
+
+- `GET /api/editions/latest`
+- `GET /api/editions/[date]`
+- `GET /api/editions`
+- `GET /api/library`
+- `GET /api/signals/search?q=...`
+- `GET /api/sources`
+- `POST /api/sources`
+- `PATCH /api/sources/[id]`
+- `POST /api/sources/[id]/test`
+- `GET /api/ops/health`
+- `GET /api/ops/runs`
+- `POST /api/ops/run-now`
+- `GET /api/ops/log/latest`
+- `GET /api/ops/log/[id]`
+
+## Ingestion
+
+Run manual ingestion for a date:
+
+```bash
+pnpm ingest -- --date 2026-02-10
+```
+
+Pipeline behavior:
+
+1. Loads enabled sources
+2. Fetches raw items
+3. Canonical URL dedupe
+4. Classifies with OpenAI Responses API + Zod validation (retry once on validation failure)
+5. Falls back to heuristics when needed
+6. Assigns stream/headliners ranking
+7. Upserts edition and transactionally replaces signals
+8. Writes `IngestionRun` + log text + log file in `logs/`
+
+## Ops Run-Now Example
+
+```bash
+curl -X POST http://localhost:3000/api/ops/run-now \
+  -H "content-type: application/json" \
+  -d '{"adminSecret":"change-me","date":"2026-02-10"}'
+```
+
+## Commands
+
+```bash
+pnpm dev            # start Next dev server
+pnpm dev:ready      # migrate + seed + dev
+pnpm db:migrate     # apply prisma migrations
+pnpm db:seed        # reseed database
+pnpm ingest -- --date YYYY-MM-DD
+pnpm lint
+pnpm test
+pnpm build
+```
+
+## Testing
+
+Vitest coverage includes:
+
+- Zod classification schema validation
+- canonical URL normalization + dedupe
+- heuristic track/stream mapping
+
+Run with:
+
+```bash
+pnpm test
+```

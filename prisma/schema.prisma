@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Heat {
+  HOT
+  NOTABLE
+  QUIET
+}
+
+enum StreamKey {
+  HEADLINERS
+  TOOLCHAIN
+  MODELS_METHODS
+  OPS_RUNTIME
+  WILDS
+}
+
+enum Confidence {
+  VERIFIED
+  UNVERIFIED
+}
+
+enum SourceType {
+  RSS
+  GITHUB_RELEASES
+  NPM_UPDATES
+  REDDIT_RSS
+  CUSTOM_RSS
+}
+
+enum IngestionStatus {
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+model Edition {
+  id             String        @id @default(uuid())
+  date           String        @unique
+  generatedAtUtc DateTime
+  totalCount     Int           @default(0)
+  hotCount       Int           @default(0)
+  notableCount   Int           @default(0)
+  quietCount     Int           @default(0)
+  morningNote    String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  signals        Signal[]
+  ingestionRuns  IngestionRun[]
+
+  @@index([generatedAtUtc])
+}
+
+model Signal {
+  id            String     @id @default(uuid())
+  editionId     String
+  edition       Edition    @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  title         String
+  summary       String
+  rationale     String
+  providerKey   String
+  providerLabel String
+  trackKey      String
+  trackLabel    String
+  heat          Heat
+  streamKey     StreamKey
+  streamLabel   String
+  rank          Int?
+  sourceUrl     String
+  sourceDomain  String
+  citations     Json
+  confidence    Confidence
+  tier          Int
+  occurredAtUtc DateTime
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([editionId, streamKey, rank])
+  @@index([editionId, heat])
+  @@index([editionId, trackKey])
+  @@index([providerKey])
+  @@index([occurredAtUtc])
+}
+
+model Source {
+  id              String     @id @default(uuid())
+  name            String
+  type            SourceType
+  identifier      String
+  providerLabel   String
+  tier            Int
+  enabled         Boolean    @default(true)
+  lastFetchedAtUtc DateTime?
+  lastError       String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@unique([type, identifier])
+  @@index([enabled])
+}
+
+model IngestionRun {
+  id           String          @id @default(uuid())
+  editionId    String?
+  edition      Edition?        @relation(fields: [editionId], references: [id], onDelete: SetNull)
+  status       IngestionStatus
+  startedAtUtc DateTime
+  finishedAtUtc DateTime?
+  itemsFetched Int             @default(0)
+  itemsCreated Int             @default(0)
+  errorMessage String?
+  logText      String?
+  logPath      String?
+  triggeredBy  String          @default("manual")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([startedAtUtc])
+  @@index([status])
+}
+
