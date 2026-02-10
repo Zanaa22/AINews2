@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowUp,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -448,7 +447,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 aria-label="Scroll tracks left"
                 onClick={() => scrollTrackPills("left")}
                 disabled={!trackCanScrollLeft}
-                className="size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35"
+                className="hidden size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35 sm:inline-flex"
               >
                 <ChevronLeft className="size-4" />
               </Button>
@@ -491,7 +490,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 aria-label="Scroll tracks right"
                 onClick={() => scrollTrackPills("right")}
                 disabled={!trackCanScrollRight}
-                className="size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35"
+                className="hidden size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35 sm:inline-flex"
               >
                 <ChevronRight className="size-4" />
               </Button>
@@ -544,16 +543,18 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-400">
                             <span>{signal.providerLabel}</span>
                             <span>{formatUtcTimestamp(signal.occurredAtUtc)}</span>
-                            <span>{signal.confidence === "VERIFIED" ? "Verified" : "Unverified"}</span>
-                            <span>Tier {signal.tier}</span>
+                            <span className="hidden sm:inline">
+                              {signal.confidence === "VERIFIED" ? "Verified" : "Unverified"}
+                            </span>
+                            <span className="hidden sm:inline">Tier {signal.tier}</span>
                           </div>
 
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-4 flex flex-wrap gap-2.5">
                             <Button
                               asChild
                               size="sm"
                               variant="outline"
-                              className="min-w-[7.5rem] justify-center border-white/15 bg-transparent text-zinc-200"
+                              className="h-8 min-w-[6.75rem] justify-center border-white/15 bg-transparent px-3 text-zinc-200"
                             >
                               <a href={signal.sourceUrl} target="_blank" rel="noreferrer noopener">
                                 <ExternalLink className="size-3.5" />
@@ -564,7 +565,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                               size="sm"
                               variant="outline"
                               onClick={() => togglePinned(signal)}
-                              className="min-w-[6.5rem] justify-center border-white/15 bg-transparent text-zinc-200"
+                              className="h-8 min-w-[6rem] justify-center border-white/15 bg-transparent px-3 text-zinc-200"
                             >
                               {pinned[signal.id] ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
                               {pinned[signal.id] ? "Unpin" : "Pin"}
@@ -572,7 +573,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <Button
                               size="sm"
                               onClick={() => setSelectedSignal(signal)}
-                              className="min-w-[6.5rem] bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
+                              className="h-8 min-w-[6rem] px-3 bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
                             >
                               Details
                             </Button>
@@ -871,23 +872,14 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         </SheetContent>
       </Sheet>
 
-      <div className="fixed right-2.5 z-40 flex flex-col items-end gap-2 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
+      <div className="fixed right-2 z-40 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
         <Button
           onClick={() => setMobileRailOpen(true)}
           aria-label="Open signal controls"
-          className="size-10 rounded-full bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400 sm:h-10 sm:w-auto sm:px-4"
+          size="icon"
+          className="size-10 rounded-full bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400"
         >
           <SlidersHorizontal className="size-4" />
-          <span className="sr-only sm:not-sr-only">Controls</span>
-        </Button>
-        <Button
-          size="icon"
-          variant="outline"
-          aria-label="Scroll to top"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="size-10 rounded-full border-white/20 bg-zinc-900/85 text-zinc-100 shadow-lg shadow-black/40"
-        >
-          <ArrowUp className="size-4" />
         </Button>
       </div>
 
