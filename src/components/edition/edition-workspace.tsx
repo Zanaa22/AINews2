@@ -99,6 +99,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
 
   const [selectedSignal, setSelectedSignal] = useState<SignalView | null>(null);
   const [mobileRailOpen, setMobileRailOpen] = useState(false);
+  const [showFullMorningNote, setShowFullMorningNote] = useState(false);
   const [pinned, setPinned] = useState<Record<string, PinnedSignal>>(() => {
     if (typeof window === "undefined") {
       return {};
@@ -307,7 +308,20 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto]">
           <article className="rounded-xl border border-amber-300/20 bg-amber-400/10 p-4 text-sm text-amber-100 shadow-inner shadow-black/20">
             <p className="text-xs uppercase tracking-[0.16em] text-amber-200/80">Morning Note</p>
-            <p className="mt-2 leading-relaxed">{edition.morningNote}</p>
+            <div className={cn("relative mt-2", !showFullMorningNote ? "max-h-44 overflow-hidden sm:max-h-none" : "")}>
+              <p className="leading-relaxed">{edition.morningNote}</p>
+              {!showFullMorningNote ? (
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#29220f] to-transparent sm:hidden" />
+              ) : null}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowFullMorningNote((current) => !current)}
+              className="mt-3 border-amber-300/30 bg-amber-300/10 text-amber-100 hover:bg-amber-300/20 sm:hidden"
+            >
+              {showFullMorningNote ? "Show less" : "Read full note"}
+            </Button>
           </article>
 
           <div className="flex w-full flex-wrap items-start gap-2 lg:w-auto">
@@ -402,30 +416,32 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 ))}
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-between border-white/20 bg-transparent text-zinc-200 md:w-auto md:justify-center"
-                  >
-                    <ListFilter className="size-4" />
-                    Stream
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 border-white/10 bg-zinc-900 text-zinc-100" align="end">
-                  <DropdownMenuItem onClick={() => updateQuery("stream", undefined)}>
-                    All streams
-                  </DropdownMenuItem>
-                  {STREAM_DEFINITIONS.map((item) => (
-                    <DropdownMenuItem key={item.key} onClick={() => updateQuery("stream", item.key)}>
-                      {item.label}
+              <div className="hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between border-white/20 bg-transparent text-zinc-200 md:w-auto md:justify-center"
+                    >
+                      <ListFilter className="size-4" />
+                      Stream
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 border-white/10 bg-zinc-900 text-zinc-100" align="end">
+                    <DropdownMenuItem onClick={() => updateQuery("stream", undefined)}>
+                      All streams
                     </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {STREAM_DEFINITIONS.map((item) => (
+                      <DropdownMenuItem key={item.key} onClick={() => updateQuery("stream", item.key)}>
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
-            <div className="mt-3 flex items-center gap-1.5 sm:gap-2">
+            <div className="mt-3 flex w-full items-center gap-1.5 sm:gap-2">
               <Button
                 size="icon"
                 variant="outline"
@@ -437,7 +453,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 <ChevronLeft className="size-4" />
               </Button>
 
-              <div ref={trackScrollRef} className="scrollbar-hidden -mx-1 flex-1 overflow-x-auto px-1">
+              <div ref={trackScrollRef} className="scrollbar-hidden -mx-1 min-w-0 flex-1 overflow-x-auto px-1">
                 <div className="flex min-w-max snap-x snap-mandatory gap-2">
                   <Button
                     size="sm"
@@ -855,11 +871,11 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         </SheetContent>
       </Sheet>
 
-      <div className="fixed inset-x-3 bottom-3 z-40 xl:hidden">
+      <div className="fixed bottom-3 right-3 z-40 xl:hidden">
         <div className="glass-panel flex items-center gap-2 p-2">
           <Button
             onClick={() => setMobileRailOpen(true)}
-            className="flex-1 bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
+            className="h-9 rounded-full bg-cyan-500 px-4 text-zinc-950 hover:bg-cyan-400"
           >
             <SlidersHorizontal className="size-4" />
             Controls
@@ -869,7 +885,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
             variant="outline"
             aria-label="Scroll to top"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="size-9 border-white/20 bg-zinc-900/75 text-zinc-100"
+            className="size-9 rounded-full border-white/20 bg-zinc-900/75 text-zinc-100"
           >
             <ArrowUp className="size-4" />
           </Button>

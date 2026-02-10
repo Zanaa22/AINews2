@@ -53,7 +53,7 @@ export function AppShell({
   const pageTitle = useMemo(() => titleForPath(pathname), [pathname]);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_15%_20%,rgba(45,77,83,0.32),transparent_40%),radial-gradient(circle_at_85%_0%,rgba(251,191,36,0.12),transparent_36%),#09090b] text-zinc-100">
+    <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_15%_20%,rgba(45,77,83,0.32),transparent_40%),radial-gradient(circle_at_85%_0%,rgba(251,191,36,0.12),transparent_36%),#09090b] text-zinc-100">
       <div className="mx-auto grid min-h-screen max-w-[1880px] lg:grid-cols-[280px_1fr]">
         <aside className="hidden border-r border-white/10 bg-zinc-900/45 px-4 py-6 backdrop-blur lg:flex lg:flex-col lg:gap-8">
           <div className="space-y-1">
@@ -118,7 +118,7 @@ export function AppShell({
             </div>
           </header>
 
-          <main className="flex-1 px-3 py-4 sm:px-6 sm:py-6">{children}</main>
+          <main className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">{children}</main>
         </div>
       </div>
     </div>
