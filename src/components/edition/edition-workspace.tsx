@@ -1,15 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
-  Flame,
   Link2,
   ListFilter,
   Pin,
   PinOff,
   Search,
+  SlidersHorizontal,
   Table2,
   Upload,
 } from "lucide-react";
@@ -40,7 +43,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PIN_STORAGE_KEY = "signal-nook:pinned-signals";
 
@@ -94,6 +98,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
   const pathname = usePathname();
 
   const [selectedSignal, setSelectedSignal] = useState<SignalView | null>(null);
+  const [mobileRailOpen, setMobileRailOpen] = useState(false);
   const [pinned, setPinned] = useState<Record<string, PinnedSignal>>(() => {
     if (typeof window === "undefined") {
       return {};
@@ -106,6 +111,9 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       return {};
     }
   });
+  const trackScrollRef = useRef<HTMLDivElement | null>(null);
+  const [trackCanScrollLeft, setTrackCanScrollLeft] = useState(false);
+  const [trackCanScrollRight, setTrackCanScrollRight] = useState(false);
 
   const track = normalizeQuery(searchParams.get("track"));
   const heat = normalizeQuery(searchParams.get("heat"));
@@ -150,6 +158,44 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
     });
   }
 
+  function clearFilters() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("track");
+    params.delete("heat");
+    params.delete("q");
+    params.delete("stream");
+
+    router.replace(`${pathname}${params.toString() ? `?${params.toString()}` : ""}`, {
+      scroll: false,
+    });
+  }
+
+  const refreshTrackScrollControls = useCallback(() => {
+    const node = trackScrollRef.current;
+    if (!node) {
+      setTrackCanScrollLeft(false);
+      setTrackCanScrollRight(false);
+      return;
+    }
+
+    const maxLeft = node.scrollWidth - node.clientWidth;
+    setTrackCanScrollLeft(node.scrollLeft > 8);
+    setTrackCanScrollRight(maxLeft - node.scrollLeft > 8);
+  }, []);
+
+  function scrollTrackPills(direction: "left" | "right") {
+    const node = trackScrollRef.current;
+    if (!node) {
+      return;
+    }
+
+    const distance = Math.max(140, Math.floor(node.clientWidth * 0.72));
+    node.scrollBy({
+      left: direction === "left" ? -distance : distance,
+      behavior: "smooth",
+    });
+  }
+
   const filteredSignals = useMemo(() => {
     return edition.signals.filter((signal) => {
       if (track && signal.trackKey !== track) {
@@ -174,6 +220,24 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       return true;
     });
   }, [edition.signals, heat, q, stream, track]);
+
+  useEffect(() => {
+    const node = trackScrollRef.current;
+    if (!node) {
+      return;
+    }
+
+    const handleScroll = () => refreshTrackScrollControls();
+    const frame = requestAnimationFrame(handleScroll);
+    node.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      node.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [refreshTrackScrollControls, filteredSignals.length, track]);
 
   const grouped = useMemo(() => {
     return STREAM_ORDER.map((streamKey) => ({
@@ -215,12 +279,29 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="space-y-4 pb-24 sm:space-y-5 xl:pb-0">
       <section className="glass-panel p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-400">Edition</p>
           <h1 className="text-xl font-semibold text-zinc-100 sm:text-3xl">Edition — {formatEditionDate(edition.date)}</h1>
-          <p className="text-xs leading-relaxed text-zinc-400 sm:text-sm">{subHeader}</p>
+          <p className="hidden text-sm text-zinc-400 sm:block">{subHeader}</p>
+          <p className="text-xs leading-relaxed text-zinc-400 sm:hidden">
+            {filteredSignals.length} visible · Generated {formatUtcTimestamp(edition.generatedAtUtc)}
+          </p>
+          <div className="grid grid-cols-3 gap-2 sm:hidden">
+            <div className="rounded-lg border border-orange-400/25 bg-orange-500/10 px-2 py-1.5 text-center">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-orange-200/85">HOT</p>
+              <p className="mt-0.5 text-sm font-semibold text-orange-100">{edition.hotCount}</p>
+            </div>
+            <div className="rounded-lg border border-amber-400/25 bg-amber-500/10 px-2 py-1.5 text-center">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-amber-200/85">NOTABLE</p>
+              <p className="mt-0.5 text-sm font-semibold text-amber-100">{edition.notableCount}</p>
+            </div>
+            <div className="rounded-lg border border-teal-400/25 bg-teal-500/10 px-2 py-1.5 text-center">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-teal-200/85">QUIET</p>
+              <p className="mt-0.5 text-sm font-semibold text-teal-100">{edition.quietCount}</p>
+            </div>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto]">
@@ -344,36 +425,60 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
               </DropdownMenu>
             </div>
 
-            <div className="scrollbar-hidden mt-3 -mx-1 overflow-x-auto px-1">
-              <div className="flex min-w-max snap-x snap-mandatory gap-2">
-                <Button
-                  size="sm"
-                  variant={!track ? "default" : "outline"}
-                  onClick={() => updateQuery("track", undefined)}
-                  className={cn(
-                    "h-8 snap-start whitespace-nowrap",
-                    !track ? "bg-cyan-500 text-zinc-950" : "border-white/20 bg-transparent text-zinc-200",
-                  )}
-                >
-                  All tracks
-                </Button>
-                {TRACK_DEFINITIONS.map((item) => (
+            <div className="mt-3 flex items-center gap-1.5 sm:gap-2">
+              <Button
+                size="icon"
+                variant="outline"
+                aria-label="Scroll tracks left"
+                onClick={() => scrollTrackPills("left")}
+                disabled={!trackCanScrollLeft}
+                className="size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+
+              <div ref={trackScrollRef} className="scrollbar-hidden -mx-1 flex-1 overflow-x-auto px-1">
+                <div className="flex min-w-max snap-x snap-mandatory gap-2">
                   <Button
-                    key={item.key}
                     size="sm"
-                    variant={track === item.key ? "default" : "outline"}
-                    onClick={() => updateQuery("track", item.key)}
+                    variant={!track ? "default" : "outline"}
+                    onClick={() => updateQuery("track", undefined)}
                     className={cn(
                       "h-8 snap-start whitespace-nowrap",
-                      track === item.key
-                        ? "bg-cyan-500 text-zinc-950"
-                        : "border-white/20 bg-transparent text-zinc-200",
+                      !track ? "bg-cyan-500 text-zinc-950" : "border-white/20 bg-transparent text-zinc-200",
                     )}
                   >
-                    {item.label}
+                    All tracks
                   </Button>
-                ))}
+                  {TRACK_DEFINITIONS.map((item) => (
+                    <Button
+                      key={item.key}
+                      size="sm"
+                      variant={track === item.key ? "default" : "outline"}
+                      onClick={() => updateQuery("track", item.key)}
+                      className={cn(
+                        "h-8 snap-start whitespace-nowrap",
+                        track === item.key
+                          ? "bg-cyan-500 text-zinc-950"
+                          : "border-white/20 bg-transparent text-zinc-200",
+                      )}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
+
+              <Button
+                size="icon"
+                variant="outline"
+                aria-label="Scroll tracks right"
+                onClick={() => scrollTrackPills("right")}
+                disabled={!trackCanScrollRight}
+                className="size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
             </div>
           </div>
 
@@ -559,12 +664,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 <Button
                   variant="outline"
                   className="w-full border-white/20 text-zinc-200"
-                  onClick={() => {
-                    updateQuery("track", undefined);
-                    updateQuery("heat", undefined);
-                    updateQuery("q", undefined);
-                    updateQuery("stream", undefined);
-                  }}
+                  onClick={clearFilters}
                 >
                   Clear filters
                 </Button>
@@ -616,64 +716,164 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
             </section>
           </div>
 
-          <Collapsible className="glass-panel p-3 xl:hidden">
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full border-white/20 text-zinc-200">
-                <Flame className="size-4" />
-                Filters, pinned, export
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-3 space-y-3">
-              <section className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <h3 className="text-sm font-semibold text-zinc-100">Filters</h3>
-                <div className="mt-2 space-y-2">
-                  <select
-                    value={heat || "ALL"}
-                    onChange={(event) =>
-                      updateQuery("heat", event.target.value === "ALL" ? undefined : event.target.value)
-                    }
-                    className="h-8 w-full rounded-md border border-white/15 bg-zinc-900 px-2 text-sm text-zinc-100"
-                  >
-                    <option value="ALL">All heat</option>
-                    {HEAT_LEVELS.map((item) => (
-                      <option key={item} value={item} className="bg-zinc-900">
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={stream || "ALL"}
-                    onChange={(event) =>
-                      updateQuery("stream", event.target.value === "ALL" ? undefined : event.target.value)
-                    }
-                    className="h-8 w-full rounded-md border border-white/15 bg-zinc-900 px-2 text-sm text-zinc-100"
-                  >
-                    <option value="ALL">All streams</option>
-                    {STREAM_DEFINITIONS.map((item) => (
-                      <option key={item.key} value={item.key} className="bg-zinc-900">
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </section>
-              <section className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <h3 className="text-sm font-semibold text-zinc-100">Pinned</h3>
-                <p className="mt-1 text-sm text-zinc-400">{pinnedItems.length} pinned signals.</p>
-              </section>
-              <section className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <div className="space-y-2">
-                  <Button onClick={exportMarkdown} className="w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400">
-                    Markdown
-                  </Button>
-                  <Button onClick={exportJson} variant="outline" className="w-full border-white/20 text-zinc-200">
-                    JSON
-                  </Button>
-                </div>
-              </section>
-            </CollapsibleContent>
-          </Collapsible>
         </aside>
+      </div>
+
+      <Sheet open={mobileRailOpen} onOpenChange={setMobileRailOpen}>
+        <SheetContent side="bottom" className="h-[84vh] border-white/10 bg-zinc-950 text-zinc-100 xl:hidden">
+          <SheetHeader className="px-0">
+            <SheetTitle className="text-zinc-100">Signal Controls</SheetTitle>
+            <SheetDescription className="text-zinc-400">
+              Tune filters, manage pinned signals, and export this edition.
+            </SheetDescription>
+          </SheetHeader>
+
+          <Tabs defaultValue="filters" className="min-h-0 flex-1">
+            <TabsList className="grid w-full grid-cols-3 bg-white/[0.05]">
+              <TabsTrigger value="filters" className="data-[state=active]:bg-cyan-500/90 data-[state=active]:text-zinc-950">
+                Filters
+              </TabsTrigger>
+              <TabsTrigger value="pinned" className="data-[state=active]:bg-cyan-500/90 data-[state=active]:text-zinc-950">
+                Pinned ({pinnedItems.length})
+              </TabsTrigger>
+              <TabsTrigger value="export" className="data-[state=active]:bg-cyan-500/90 data-[state=active]:text-zinc-950">
+                Export
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="filters" className="mt-3 space-y-3 overflow-y-auto pr-1">
+              <section className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <h3 className="text-xs uppercase tracking-[0.14em] text-zinc-400">Heat</h3>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <Button
+                    size="sm"
+                    variant={!heat ? "default" : "outline"}
+                    className={cn(
+                      "h-8",
+                      !heat ? "bg-cyan-500 text-zinc-950" : "border-white/20 bg-transparent text-zinc-200",
+                    )}
+                    onClick={() => updateQuery("heat", undefined)}
+                  >
+                    All heat
+                  </Button>
+                  {HEAT_LEVELS.map((item) => (
+                    <Button
+                      key={item}
+                      size="sm"
+                      variant={heat === item ? "default" : "outline"}
+                      className={cn(
+                        "h-8",
+                        heat === item
+                          ? "bg-cyan-500 text-zinc-950"
+                          : "border-white/20 bg-transparent text-zinc-200",
+                      )}
+                      onClick={() => updateQuery("heat", item)}
+                    >
+                      {item}
+                    </Button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <h3 className="text-xs uppercase tracking-[0.14em] text-zinc-400">Stream</h3>
+                <select
+                  value={stream || "ALL"}
+                  onChange={(event) =>
+                    updateQuery("stream", event.target.value === "ALL" ? undefined : event.target.value)
+                  }
+                  className="mt-2 h-9 w-full rounded-md border border-white/15 bg-zinc-900 px-2 text-sm text-zinc-100"
+                >
+                  <option value="ALL">All streams</option>
+                  {STREAM_DEFINITIONS.map((item) => (
+                    <option key={item.key} value={item.key} className="bg-zinc-900">
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </section>
+
+              <Button variant="outline" onClick={clearFilters} className="w-full border-white/20 text-zinc-100">
+                Clear all filters
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="pinned" className="mt-3 space-y-2 overflow-y-auto pr-1">
+              {pinnedItems.length === 0 ? (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-400">
+                  Pin any signal from the feed to keep it in quick reach here.
+                </div>
+              ) : (
+                pinnedItems.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                    <p className="line-clamp-2 text-sm text-zinc-200">{item.title}</p>
+                    <p className="mt-1 text-xs text-zinc-400">{item.providerLabel}</p>
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <Badge className={cn("border", HEAT_META[item.heat].tailwind)}>{item.heat}</Badge>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={item.sourceUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="text-xs text-cyan-200 hover:text-cyan-100"
+                        >
+                          Open
+                        </a>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 border-white/20 px-2 text-zinc-200"
+                          onClick={() => {
+                            const signal = edition.signals.find((editionSignal) => editionSignal.id === item.id);
+                            if (signal) {
+                              togglePinned(signal);
+                            }
+                          }}
+                        >
+                          Unpin
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </TabsContent>
+
+            <TabsContent value="export" className="mt-3 space-y-2 overflow-y-auto pr-1">
+              <Button onClick={exportMarkdown} className="w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400">
+                Export Markdown
+              </Button>
+              <Button onClick={exportJson} variant="outline" className="w-full border-white/20 text-zinc-100">
+                Export JSON
+              </Button>
+              <Button onClick={copyLink} variant="outline" className="w-full border-white/20 text-zinc-100">
+                <Link2 className="size-4" />
+                Copy share link
+              </Button>
+            </TabsContent>
+          </Tabs>
+        </SheetContent>
+      </Sheet>
+
+      <div className="fixed inset-x-3 bottom-3 z-40 xl:hidden">
+        <div className="glass-panel flex items-center gap-2 p-2">
+          <Button
+            onClick={() => setMobileRailOpen(true)}
+            className="flex-1 bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
+          >
+            <SlidersHorizontal className="size-4" />
+            Controls
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
+            aria-label="Scroll to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="size-9 border-white/20 bg-zinc-900/75 text-zinc-100"
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <Dialog open={Boolean(selectedSignal)} onOpenChange={(open) => !open && setSelectedSignal(null)}>
