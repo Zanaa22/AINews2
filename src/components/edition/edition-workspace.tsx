@@ -280,7 +280,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
   }
 
   return (
-    <div className="space-y-4 pb-24 sm:space-y-5 xl:pb-0">
+    <div className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] sm:pb-28 xl:pb-0">
       <section className="glass-panel p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-400">Edition</p>
@@ -371,8 +371,8 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         </div>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="space-y-4">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="space-y-5">
           <div className="glass-panel p-3.5 sm:p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_auto]">
               <div className="relative">
@@ -441,7 +441,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
               </div>
             </div>
 
-            <div className="mt-3 flex w-full items-center gap-1.5 sm:gap-2">
+            <div className="mt-3 flex w-full items-center gap-2 sm:gap-2.5">
               <Button
                 size="icon"
                 variant="outline"
@@ -499,20 +499,20 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
           </div>
 
           {view === "cards" ? (
-            <div className="space-y-5">
+            <div className="space-y-6">
               {grouped.map(({ stream, items }) => {
                 if (!stream || items.length === 0) {
                   return null;
                 }
 
                 return (
-                  <section key={stream.key} className="space-y-3">
+                  <section key={stream.key} className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-semibold text-zinc-100">{stream.label}</h2>
                       <span className="text-xs uppercase tracking-[0.14em] text-zinc-400">{items.length} signals</span>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {items.map((signal) => (
                         <article
                           key={signal.id}
@@ -548,7 +548,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <span>Tier {signal.tier}</span>
                           </div>
 
-                          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                          <div className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                             <Button
                               asChild
                               size="sm"
@@ -572,7 +572,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <Button
                               size="sm"
                               onClick={() => setSelectedSignal(signal)}
-                              className="col-span-2 w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400 sm:col-auto sm:w-auto"
+                              className="w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400 sm:w-auto"
                             >
                               Details
                             </Button>
@@ -871,25 +871,23 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         </SheetContent>
       </Sheet>
 
-      <div className="fixed bottom-3 right-3 z-40 xl:hidden">
-        <div className="glass-panel flex items-center gap-2 p-2">
-          <Button
-            onClick={() => setMobileRailOpen(true)}
-            className="h-9 rounded-full bg-cyan-500 px-4 text-zinc-950 hover:bg-cyan-400"
-          >
-            <SlidersHorizontal className="size-4" />
-            Controls
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            aria-label="Scroll to top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="size-9 rounded-full border-white/20 bg-zinc-900/75 text-zinc-100"
-          >
-            <ArrowUp className="size-4" />
-          </Button>
-        </div>
+      <div className="fixed right-3 z-40 flex flex-col items-end gap-2 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
+        <Button
+          onClick={() => setMobileRailOpen(true)}
+          className="h-10 rounded-full bg-cyan-500 px-4 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400"
+        >
+          <SlidersHorizontal className="size-4" />
+          Controls
+        </Button>
+        <Button
+          size="icon"
+          variant="outline"
+          aria-label="Scroll to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="size-10 rounded-full border-white/20 bg-zinc-900/85 text-zinc-100 shadow-lg shadow-black/40"
+        >
+          <ArrowUp className="size-4" />
+        </Button>
       </div>
 
       <Dialog open={Boolean(selectedSignal)} onOpenChange={(open) => !open && setSelectedSignal(null)}>
