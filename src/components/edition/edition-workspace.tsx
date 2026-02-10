@@ -215,12 +215,12 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="glass-panel p-5 sm:p-6">
+    <div className="space-y-4 sm:space-y-5">
+      <section className="glass-panel p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-400">Edition</p>
-          <h1 className="text-2xl font-semibold text-zinc-100 sm:text-3xl">Edition — {formatEditionDate(edition.date)}</h1>
-          <p className="text-sm text-zinc-400">{subHeader}</p>
+          <h1 className="text-xl font-semibold text-zinc-100 sm:text-3xl">Edition — {formatEditionDate(edition.date)}</h1>
+          <p className="text-xs leading-relaxed text-zinc-400 sm:text-sm">{subHeader}</p>
         </div>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto]">
@@ -229,12 +229,12 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
             <p className="mt-2 leading-relaxed">{edition.morningNote}</p>
           </article>
 
-          <div className="flex flex-wrap items-start gap-2">
+          <div className="flex w-full flex-wrap items-start gap-2 lg:w-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-400/20"
+                  className="w-full justify-between border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-400/20 sm:w-auto sm:justify-center"
                 >
                   <Upload className="size-4" />
                   Export
@@ -247,13 +247,13 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="inline-flex rounded-lg border border-white/10 bg-white/5 p-1">
+            <div className="inline-flex w-full rounded-lg border border-white/10 bg-white/5 p-1 sm:w-auto">
               <Button
                 size="sm"
                 variant={view === "cards" ? "default" : "ghost"}
                 onClick={() => updateQuery("view", "cards")}
                 className={cn(
-                  "h-8",
+                  "h-8 flex-1 sm:flex-none",
                   view === "cards" ? "bg-cyan-500 text-zinc-950 hover:bg-cyan-400" : "text-zinc-300",
                 )}
               >
@@ -264,7 +264,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 variant={view === "compact" ? "default" : "ghost"}
                 onClick={() => updateQuery("view", "compact")}
                 className={cn(
-                  "h-8",
+                  "h-8 flex-1 sm:flex-none",
                   view === "compact" ? "bg-cyan-500 text-zinc-950 hover:bg-cyan-400" : "text-zinc-300",
                 )}
               >
@@ -278,8 +278,8 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-4">
-          <div className="glass-panel p-4">
-            <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+          <div className="glass-panel p-3.5 sm:p-4">
+            <div className="grid gap-3 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_auto]">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-3 size-4 text-zinc-500" />
                 <Input
@@ -291,13 +291,13 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 />
               </div>
 
-              <div className="scrollbar-hidden flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="scrollbar-hidden flex snap-x snap-mandatory items-center gap-2 overflow-x-auto pb-1">
                 <Button
                   size="sm"
                   variant={!heat ? "default" : "outline"}
                   onClick={() => updateQuery("heat", undefined)}
                   className={cn(
-                    "h-8 whitespace-nowrap",
+                    "h-8 snap-start whitespace-nowrap",
                     !heat ? "bg-cyan-500 text-zinc-950" : "border-white/20 bg-transparent text-zinc-200",
                   )}
                 >
@@ -310,7 +310,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                     variant={heat === item ? "default" : "outline"}
                     onClick={() => updateQuery("heat", item)}
                     className={cn(
-                      "h-8 whitespace-nowrap",
+                      "h-8 snap-start whitespace-nowrap",
                       heat === item
                         ? "bg-cyan-500 text-zinc-950"
                         : "border-white/20 bg-transparent text-zinc-200",
@@ -323,7 +323,10 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="border-white/20 bg-transparent text-zinc-200">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between border-white/20 bg-transparent text-zinc-200 md:w-auto md:justify-center"
+                  >
                     <ListFilter className="size-4" />
                     Stream
                   </Button>
@@ -342,13 +345,13 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
             </div>
 
             <div className="scrollbar-hidden mt-3 -mx-1 overflow-x-auto px-1">
-              <div className="flex min-w-max gap-2">
+              <div className="flex min-w-max snap-x snap-mandatory gap-2">
                 <Button
                   size="sm"
                   variant={!track ? "default" : "outline"}
                   onClick={() => updateQuery("track", undefined)}
                   className={cn(
-                    "h-8 whitespace-nowrap",
+                    "h-8 snap-start whitespace-nowrap",
                     !track ? "bg-cyan-500 text-zinc-950" : "border-white/20 bg-transparent text-zinc-200",
                   )}
                 >
@@ -361,7 +364,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                     variant={track === item.key ? "default" : "outline"}
                     onClick={() => updateQuery("track", item.key)}
                     className={cn(
-                      "h-8 whitespace-nowrap",
+                      "h-8 snap-start whitespace-nowrap",
                       track === item.key
                         ? "bg-cyan-500 text-zinc-950"
                         : "border-white/20 bg-transparent text-zinc-200",
@@ -424,8 +427,13 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <span>Tier {signal.tier}</span>
                           </div>
 
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <Button asChild size="sm" variant="outline" className="border-white/15 bg-transparent text-zinc-200">
+                          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className="w-full justify-center border-white/15 bg-transparent text-zinc-200 sm:w-auto"
+                            >
                               <a href={signal.sourceUrl} target="_blank" rel="noreferrer noopener">
                                 <ExternalLink className="size-3.5" />
                                 Open source
@@ -435,7 +443,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                               size="sm"
                               variant="outline"
                               onClick={() => togglePinned(signal)}
-                              className="border-white/15 bg-transparent text-zinc-200"
+                              className="w-full justify-center border-white/15 bg-transparent text-zinc-200 sm:w-auto"
                             >
                               {pinned[signal.id] ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
                               {pinned[signal.id] ? "Unpin" : "Pin"}
@@ -443,7 +451,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <Button
                               size="sm"
                               onClick={() => setSelectedSignal(signal)}
-                              className="bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
+                              className="col-span-2 w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400 sm:col-auto sm:w-auto"
                             >
                               Details
                             </Button>
@@ -669,7 +677,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       </div>
 
       <Dialog open={Boolean(selectedSignal)} onOpenChange={(open) => !open && setSelectedSignal(null)}>
-        <DialogContent className="max-w-2xl border-white/10 bg-zinc-950 text-zinc-100">
+        <DialogContent className="max-h-[86vh] max-w-[calc(100vw-1.25rem)] overflow-y-auto border-white/10 bg-zinc-950 text-zinc-100 sm:max-w-2xl">
           {selectedSignal ? (
             <>
               <DialogHeader>

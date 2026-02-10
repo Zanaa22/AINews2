@@ -74,9 +74,9 @@ export function AppShell({
         </aside>
 
         <div className="flex min-w-0 flex-col">
-          <header className="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/70 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/55 sm:px-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 lg:hidden">
+          <header className="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/70 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/55 sm:px-6 sm:py-3">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
+              <div className="flex min-w-0 items-center gap-2 lg:hidden">
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button
@@ -88,7 +88,10 @@ export function AppShell({
                       <Menu className="size-4" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[310px] border-white/10 bg-zinc-950 text-zinc-100">
+                  <SheetContent
+                    side="left"
+                    className="w-[88vw] max-w-[340px] overflow-y-auto border-white/10 bg-zinc-950 text-zinc-100"
+                  >
                     <SheetHeader>
                       <SheetTitle className="text-zinc-100">{APP_NAME}</SheetTitle>
                       <SheetDescription className="text-zinc-400">{APP_TAGLINE}</SheetDescription>
@@ -99,15 +102,17 @@ export function AppShell({
                     </div>
                   </SheetContent>
                 </Sheet>
-                <span className="text-sm font-medium text-zinc-200">{APP_NAME}</span>
+                <span className="max-w-[42vw] truncate text-sm font-medium text-zinc-200 max-[420px]:hidden">
+                  {APP_NAME}
+                </span>
               </div>
 
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Signal Nook</p>
-                <h1 className="text-sm font-semibold text-zinc-100 sm:text-base">{pageTitle}</h1>
+              <div className="min-w-0">
+                <p className="hidden text-xs uppercase tracking-[0.18em] text-zinc-500 sm:block">Signal Nook</p>
+                <h1 className="truncate text-sm font-semibold text-zinc-100 sm:text-base">{pageTitle}</h1>
               </div>
 
-              <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300 sm:block">
+              <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300 md:block">
                 Daily AI signals
               </div>
             </div>
