@@ -371,7 +371,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="space-y-5">
+        <section className="space-y-5 pr-11 sm:pr-0">
           <div className="glass-panel p-3.5 sm:p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_auto]">
               <div className="relative">
@@ -537,8 +537,12 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             ) : null}
                           </div>
 
-                          <h3 className="mt-3 text-base font-semibold text-zinc-100 sm:text-lg">{signal.title}</h3>
-                          <p className="mt-2 text-sm leading-relaxed text-zinc-300">{signal.summary}</p>
+                          <h3 className="mt-3 whitespace-normal text-base font-semibold text-zinc-100 break-words [overflow-wrap:anywhere] sm:text-lg">
+                            {signal.title}
+                          </h3>
+                          <p className="mt-2 whitespace-normal text-sm leading-relaxed text-zinc-300 break-words [overflow-wrap:anywhere]">
+                            {signal.summary}
+                          </p>
 
                           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-400">
                             <span>{signal.providerLabel}</span>
