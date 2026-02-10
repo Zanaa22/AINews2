@@ -548,12 +548,12 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <span>Tier {signal.tier}</span>
                           </div>
 
-                          <div className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                          <div className="mt-4 flex flex-wrap gap-2">
                             <Button
                               asChild
                               size="sm"
                               variant="outline"
-                              className="w-full justify-center border-white/15 bg-transparent text-zinc-200 sm:w-auto"
+                              className="min-w-[7.5rem] justify-center border-white/15 bg-transparent text-zinc-200"
                             >
                               <a href={signal.sourceUrl} target="_blank" rel="noreferrer noopener">
                                 <ExternalLink className="size-3.5" />
@@ -564,7 +564,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                               size="sm"
                               variant="outline"
                               onClick={() => togglePinned(signal)}
-                              className="w-full justify-center border-white/15 bg-transparent text-zinc-200 sm:w-auto"
+                              className="min-w-[6.5rem] justify-center border-white/15 bg-transparent text-zinc-200"
                             >
                               {pinned[signal.id] ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
                               {pinned[signal.id] ? "Unpin" : "Pin"}
@@ -572,7 +572,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                             <Button
                               size="sm"
                               onClick={() => setSelectedSignal(signal)}
-                              className="w-full bg-cyan-500 text-zinc-950 hover:bg-cyan-400 sm:w-auto"
+                              className="min-w-[6.5rem] bg-cyan-500 text-zinc-950 hover:bg-cyan-400"
                             >
                               Details
                             </Button>
@@ -871,13 +871,14 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
         </SheetContent>
       </Sheet>
 
-      <div className="fixed right-3 z-40 flex flex-col items-end gap-2 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
+      <div className="fixed right-2.5 z-40 flex flex-col items-end gap-2 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
         <Button
           onClick={() => setMobileRailOpen(true)}
-          className="h-10 rounded-full bg-cyan-500 px-4 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400"
+          aria-label="Open signal controls"
+          className="size-10 rounded-full bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400 sm:h-10 sm:w-auto sm:px-4"
         >
           <SlidersHorizontal className="size-4" />
-          Controls
+          <span className="sr-only sm:not-sr-only">Controls</span>
         </Button>
         <Button
           size="icon"
