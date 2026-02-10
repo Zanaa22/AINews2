@@ -291,7 +291,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 />
               </div>
 
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="scrollbar-hidden flex items-center gap-2 overflow-x-auto pb-1">
                 <Button
                   size="sm"
                   variant={!heat ? "default" : "outline"}
@@ -341,7 +341,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
               </DropdownMenu>
             </div>
 
-            <div className="mt-3 -mx-1 overflow-x-auto px-1">
+            <div className="scrollbar-hidden mt-3 -mx-1 overflow-x-auto px-1">
               <div className="flex min-w-max gap-2">
                 <Button
                   size="sm"

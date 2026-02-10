@@ -129,7 +129,7 @@ export function LibraryClient({ initial }: { initial: LibraryPayload }) {
             className="border-white/15 bg-zinc-950/70 text-zinc-100"
           />
 
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="scrollbar-hidden flex gap-2 overflow-x-auto pb-1">
             <Button
               size="sm"
               variant={heat === "ALL" ? "default" : "outline"}
