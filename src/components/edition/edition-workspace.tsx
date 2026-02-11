@@ -279,7 +279,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
   }
 
   return (
-    <div className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] sm:pb-28 xl:pb-0">
+    <div className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pb-10 xl:pb-0">
       <section className="glass-panel p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-400">Edition</p>
@@ -371,7 +371,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="space-y-5 pr-11 sm:pr-0">
+        <section className="space-y-5">
           <div className="glass-panel p-3.5 sm:p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_auto]">
               <div className="relative">
@@ -493,6 +493,18 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
                 className="hidden size-8 shrink-0 border-white/20 bg-zinc-900/80 text-zinc-200 disabled:opacity-35 sm:inline-flex"
               >
                 <ChevronRight className="size-4" />
+              </Button>
+            </div>
+
+            <div className="mt-3 xl:hidden">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setMobileRailOpen(true)}
+                className="border-cyan-300/35 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-400/20"
+              >
+                <SlidersHorizontal className="size-4" />
+                Controls
               </Button>
             </div>
           </div>
@@ -875,17 +887,6 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
           </Tabs>
         </SheetContent>
       </Sheet>
-
-      <div className="fixed right-2 z-40 [bottom:calc(env(safe-area-inset-bottom)+0.75rem)] xl:hidden">
-        <Button
-          onClick={() => setMobileRailOpen(true)}
-          aria-label="Open signal controls"
-          size="icon"
-          className="size-10 rounded-full bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-950/35 hover:bg-cyan-400"
-        >
-          <SlidersHorizontal className="size-4" />
-        </Button>
-      </div>
 
       <Dialog open={Boolean(selectedSignal)} onOpenChange={(open) => !open && setSelectedSignal(null)}>
         <DialogContent className="max-h-[86vh] max-w-[calc(100vw-1.25rem)] overflow-y-auto border-white/10 bg-zinc-950 text-zinc-100 sm:max-w-2xl">
