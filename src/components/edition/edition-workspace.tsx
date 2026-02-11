@@ -371,7 +371,7 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="space-y-5">
+        <section className="min-w-0 space-y-5">
           <div className="glass-panel p-3.5 sm:p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_auto]">
               <div className="relative">
@@ -510,25 +510,25 @@ export function EditionWorkspace({ edition }: { edition: EditionView }) {
           </div>
 
           {view === "cards" ? (
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               {grouped.map(({ stream, items }) => {
                 if (!stream || items.length === 0) {
                   return null;
                 }
 
                 return (
-                  <section key={stream.key} className="space-y-4">
+                  <section key={stream.key} className="min-w-0 space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-semibold text-zinc-100">{stream.label}</h2>
                       <span className="text-xs uppercase tracking-[0.14em] text-zinc-400">{items.length} signals</span>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="min-w-0 space-y-4">
                       {items.map((signal) => (
                         <article
                           key={signal.id}
                           className={cn(
-                            "glass-panel rounded-xl p-4 transition-all hover:-translate-y-0.5 hover:border-cyan-300/25",
+                            "min-w-0 glass-panel rounded-xl p-4 transition-all hover:-translate-y-0.5 hover:border-cyan-300/25",
                             signal.heat === "HOT"
                               ? "heat-edge-hot"
                               : signal.heat === "NOTABLE"
